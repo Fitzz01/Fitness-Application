@@ -1,0 +1,313 @@
+SignUp
+
+package com.example.personalizedfitnessapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.example.personalizedfitnessapp.databinding.ActivitySignupBinding;
+
+public class SignupActivity extends AppCompatActivity {
+
+    EditText name, pass, email, cornfirmpass;
+    Button signUpBtn;
+    TextView AHA;
+    DatabaseHelper db;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_signup);
+        getSupportActionBar().hide();
+
+        name         = findViewById(R.id.signup_UserName);
+        pass         = findViewById(R.id.signup_password);
+        email        = findViewById(R.id.signup_email);
+        signUpBtn    = findViewById(R.id.signupButton);
+        AHA          = findViewById(R.id.alreadyAccount);
+        cornfirmpass = findViewById(R.id.repassword);
+
+        db        = new DatabaseHelper(this);
+
+        signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String nam   = name.getText().toString();
+                String pas   = pass.getText().toString();
+                String Email = email.getText().toString();
+                String cPass = cornfirmpass.getText().toString();
+
+                if(nam.equals("") || pas.equals("") || Email.equals("") || cPass.equals("")){
+                    Toast.makeText(SignupActivity.this, "Enter All Field", Toast.LENGTH_SHORT).show();
+                } else {
+                    if(pas.equals(cPass)){
+                        boolean checkEmail = db.checkUserEmail(Email);
+
+                        if(!checkEmail){
+                            boolean insert = db.insertData(nam, pas, Email);
+
+                            if(insert){
+                                Toast.makeText(SignupActivity.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                            }else {
+                                Toast.makeText(SignupActivity.this, "Registered Failed", Toast.LENGTH_SHORT).show();
+                            }
+                        }else {
+                            Toast.makeText(SignupActivity.this, "User Already exist!", Toast.LENGTH_SHORT).show();
+                        }
+                    }else {
+                        Toast.makeText(SignupActivity.this, "Password does not matched!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        AHA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(SignupActivity.this, LoginActivity.class);
+                startActivity(i);
+            }
+        });
+    }
+}
+
+
+Login 
+
+
+package com.example.personalizedfitnessapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class LoginActivity extends AppCompatActivity {
+
+    EditText password, username;
+    Button LoginBtn;
+    TextView YLA;
+    DatabaseHelper db;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        getSupportActionBar().hide();
+
+        password         = findViewById(R.id.login_password);
+        username         = findViewById(R.id.login_UserName);
+        LoginBtn         = findViewById(R.id.loginButton);
+        YLA              = findViewById(R.id.registerAccount);
+
+        db               = new DatabaseHelper(this);
+
+        LoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String pas   = password.getText().toString();
+                String name  = username.getText().toString();
+
+                if(pas.equals("") || name.equals(""))
+                    Toast.makeText(LoginActivity.this, "Enter All Requirement", Toast.LENGTH_SHORT).show();
+                else{
+                    boolean checkUserPN = db.checkEmailAndPass(pas, name);
+
+                    if(checkUserPN){
+                        Toast.makeText(LoginActivity.this, "Sign In Successfully", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(i);
+                    }else{
+                        Toast.makeText(LoginActivity.this, "Invalid Entrance", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        YLA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(LoginActivity.this, SignupActivity.class);
+                startActivity(i);
+            }
+        });
+
+    }
+}
+
+Step Tracker
+
+package com.example.personalizedfitnessapp;
+
+import static android.app.PendingIntent.getActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class stepTracker extends AppCompatActivity implements SensorEventListener {
+
+
+    private SensorManager mSensorManager = null;
+    private Sensor stepSensor;
+    private int totalSteps = 0;
+    private int previewTotalSteps = 0;
+    private ProgressBar progressBar;
+    private TextView steps;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_step_tracker);
+
+        progressBar = findViewById(R.id.progressBar);
+        steps       = findViewById(R.id.stepsCount);
+
+
+        resetSteps();
+        loadData();
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        stepSensor     = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+    }
+
+    protected void onResume(){
+        super.onResume();
+        
+        if(stepSensor == null){
+            Toast.makeText(this, "This device has no sensor", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            mSensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    protected void onPause(){
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
+            totalSteps = (int) event.values[0];
+            int currentSteps = totalSteps-previewTotalSteps;
+            steps.setText(String.valueOf(currentSteps));
+            progressBar.setProgress(currentSteps);
+        }
+    }
+
+    private void resetSteps(){
+        steps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(stepTracker.this, "Long Press to reset steps", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        steps.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                previewTotalSteps = totalSteps;
+                steps.setText("0");
+                progressBar.setProgress(0);
+                saveData();
+                return true;
+            }
+        });
+    }
+
+    private void saveData(){
+        SharedPreferences sharedPref    = getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("key1", String.valueOf(previewTotalSteps));
+        editor.apply();
+    }
+
+    private void loadData(){
+        SharedPreferences sharedPref = getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        int savedNumber = (int) sharedPref.getFloat("key1", 0f);
+        previewTotalSteps = savedNumber;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+}
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Step Counter"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:textFontWeight="800"
+        android:textSize="20sp"
+        android:textColor="#3a9bdc"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+
+        <ProgressBar
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:max="1000"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:background="@drawable/circular_shape"
+            android:progressDrawable="@drawable/circular_progress_bar"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/stepsCount"
+            android:text="Steps"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textSize="28sp"
+            android:textColor="#163770"
+            android:textStyle="bold"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
+
