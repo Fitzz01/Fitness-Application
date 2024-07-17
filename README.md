@@ -7,9 +7,18 @@
 <p>Below are the examples of user interface in this application</p>
 
 <div align="center">
-  <img alt="List of YouTube videos" src="app/src/main/res/fit1.jpg" /><br/>
-  <img alt="login" src="app/src/main/res/fit1.jpg" /><br/>
-  <img alt="dashboard" src="app/src/main/res/fit1.jpg" /><br/>
-  <img alt="List of YouTube videos" src="app/src/main/res/fit1.jpg" /><br/>
-  <img alt="login" src="app/src/main/res/fit1.jpg" />
+  <img alt="" src="app/src/main/res/fit4.jpg" style="width:300px;height:600px;" />
+  <p>Login user interface</p><br/>
+  
+  <img alt="" src="app/src/main/res/fit5.jpg" />
+  <p>Register user interface</p><br/>
+  
+  <img alt="" src="app/src/main/res/fit3.jpg" />
+  <p>Main user interface</p><br/>
+  
+  <img alt="" src="app/src/main/res/fit2.jpg" />
+  <p>Question user interface (to know condition of user)</p><br/>
+  
+  <img alt="" src="app/src/main/res/fit1.jpg" />
+  <p>Videos of YouTube user interface (integrated by YouTube's API)</p><br/>
 </div>
