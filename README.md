@@ -7,7 +7,7 @@
 <p>Below are the examples of user interface in this application</p>
 
 <div align="center">
-  <img alt="mainpage" src=".\web\img\mainpage.png" /><br/>
+  <img alt="List of YouTube videos" src="app/src/main/res/fit1.jpg" /><br/>
   <img alt="login" src=".\web\img\login page.png" /><br/>
   <img alt="dashboard" src=".\web\img\dashboard.png" />
 </div>
