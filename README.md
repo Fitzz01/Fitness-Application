@@ -8,6 +8,8 @@
 
 <div align="center">
   <img alt="List of YouTube videos" src="app/src/main/res/fit1.jpg" /><br/>
-  <img alt="login" src=".\web\img\login page.png" /><br/>
-  <img alt="dashboard" src=".\web\img\dashboard.png" />
+  <img alt="login" src="app/src/main/res/fit1.jpg" /><br/>
+  <img alt="dashboard" src="app/src/main/res/fit1.jpg" /><br/>
+  <img alt="List of YouTube videos" src="app/src/main/res/fit1.jpg" /><br/>
+  <img alt="login" src="app/src/main/res/fit1.jpg" />
 </div>
